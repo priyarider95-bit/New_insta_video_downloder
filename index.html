@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaMaster - Instagram Video & Reels Downloader</title>
+    <meta name="description" content="Download Instagram Reels, Videos, and Posts in HD MP4 format fast and free with InstaMaster.">
+    <meta name="keywords" content="instagram video downloader, insta reels download, instamaster, download instagram video hd">
+    <!-- Google Search Console Verification Tag Yahan Paste Karna Hai -->
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 15px;
+        }
+        .card {
+            width: 100%;
+            max-width: 450px;
+            background-color: #0d0d0d;
+            border: 1.5px solid #ff1e1e;
+            border-radius: 14px;
+            padding: 22px 18px;
+            margin-bottom: 18px;
+            box-shadow: 0 0 15px rgba(255, 30, 30, 0.35), inset 0 0 8px rgba(255, 30, 30, 0.15);
+        }
+        .header-card {
+            text-align: center;
+            padding: 25px 15px;
+        }
+        .logo-title {
+            color: #ff2a2a;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-shadow: 0 0 10px rgba(255, 42, 42, 0.6);
+        }
+        .subtitle {
+            color: #9e9e9e;
+            font-size: 11px;
+            letter-spacing: 2.5px;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+        .section-title {
+            color: #ff2a2a;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            background-color: #141414;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 15px;
+            transition: 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #ff1e1e;
+            box-shadow: 0 0 8px rgba(255, 30, 30, 0.4);
+        }
+        .btn-download {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #e51c1c, #ff2e2e);
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 0 14px rgba(255, 30, 30, 0.5);
+            transition: 0.2s;
+        }
+        .btn-download:active {
+            transform: scale(0.98);
+        }
+        .progress-header {
+            color: #ff2a2a;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #cccccc;
+            margin-bottom: 8px;
+        }
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background-color: #262626;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff1e1e, #ff5252);
+            box-shadow: 0 0 10px #ff1e1e;
+            transition: width 0.3s ease;
+        }
+        .footer {
+            color: #666666;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            margin-top: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card header-card">
+        <div class="logo-title">▶ InstaMaster</div>
+        <div class="subtitle">INSTAGRAM VIDEO DOWNLOADER</div>
+    </div>
+
+    <div class="card">
+        <div class="section-title">🔗 Video Downloader</div>
+        <input type="text" id="videoUrl" placeholder="Paste Instagram video link here...">
+        <button class="btn-download" onclick="startDownload()">↓ DOWNLOAD NOW</button>
+    </div>
+
+    <div class="card">
+        <div class="progress-header">📊 LIVE DOWNLOAD PROGRESS</div>
+        <div class="stats-row">
+            <span id="statusText">Status: Waiting</span>
+            <span id="percentText">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+        <div class="stats-row">
+            <span id="downloadedText">Downloaded: 0 MB</span>
+            <span id="speedText">Speed: -- MB/s</span>
+        </div>
+    </div>
+
+    <div class="footer">CLIPMASTER © 2026 | TURBO EDITION</div>
+
+    <script>
+        let pollInterval;
+
+        async function startDownload() {
+            const url = document.getElementById('videoUrl').value.trim();
+            if (!url) {
+                alert("Please paste an Instagram link first!");
+                return;
+            }
+
+            document.getElementById('statusText').innerText = "Status: Connecting...";
+            document.getElementById('percentText').innerText = "0%";
+            document.getElementById('progressBar').style.width = "0%";
+
+            const res = await fetch('/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({url: url})
+            });
+
+            const data = await res.json();
+            if (data.task_id) {
+                pollInterval = setInterval(() => checkProgress(data.task_id), 800);
+            }
+        }
+
+        async function checkProgress(taskId) {
+            const res = await fetch(`/progress/${taskId}`);
+            const data = await res.json();
+
+            document.getElementById('statusText').innerText = `Status: ${data.status}`;
+            document.getElementById('percentText').innerText = `${data.percent}%`;
+            document.getElementById('progressBar').style.width = `${data.percent}%`;
+            document.getElementById('downloadedText').innerText = `Downloaded: ${data.downloaded_mb} MB`;
+            document.getElementById('speedText').innerText = `Speed: ${data.speed_mb} MB/s`;
+
+            if (data.done) {
+                clearInterval(pollInterval);
+                window.location.href = `/get-file/${taskId}`;
+            } else if (data.error) {
+                clearInterval(pollInterval);
+            }
+        }
+    </script>
+</body>
+</html>
+
